@@ -1,9 +1,13 @@
 import React from 'react';
 
 const Logout = () => {
+
+  //clearCookie('token')
+
   return ( 
     <div className='container'>
       <h1>Logout Page</h1>
+      <button>Logout</button>
       <p>clear cookies and redirect to home page</p>
     </div>
    );

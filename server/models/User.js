@@ -17,6 +17,10 @@ const newUser = new Schema({
     min: 8,
     required: true
   },
+  coins: {
+    type: Map,
+    of: Number
+  }
 
 });
 

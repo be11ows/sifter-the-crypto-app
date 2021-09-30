@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-// just trying to get to the root of the issue
+
 const Register = () => {
     const [email, setEmail] = useState();
     const [username, setUserName] = useState();
