@@ -17,22 +17,24 @@ const NoMatchPage = () => {
 function App() {
 
   return (
-    <Router>
+    <div>
+      <Router>
 
-      <Navbar />
+        <Navbar />
 
-      <Switch>
-        <Route exact path="/"><Home /></Route>
-        <Route path="/list"><List /></Route>
-        <Route path="/curatedList"><CuratedList /></Route>
-        <Route path="/register"><Register /></Route>
-        <Route path="/login"><Login /></Route>
-        <Route path="/logout"><Logout /></Route>
-        <Route path="/about"><About /></Route>  
-        <Route component={NoMatchPage} />
-      </Switch>
-      
-    </Router>
+        <Switch>
+          <Route exact path="/"><Home /></Route>
+          <Route path="/list"><List /></Route>
+          <Route path="/curatedList"><CuratedList /></Route>
+          <Route path="/register"><Register /></Route>
+          <Route path="/login"><Login /></Route>
+          <Route path="/logout"><Logout /></Route>
+          <Route path="/about"><About /></Route>  
+          <Route component={NoMatchPage} />
+        </Switch>
+        
+      </Router>
+    </div>
   )
 }
 

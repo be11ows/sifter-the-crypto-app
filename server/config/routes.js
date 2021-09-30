@@ -2,6 +2,9 @@ const axios = require('axios');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const auth = require('../utils/auth');
+const { check, validationResult } = require('express-validator');
+
 require('dotenv').config();
 
 module.exports = (app) => {
@@ -24,10 +27,10 @@ module.exports = (app) => {
     // });
   })
 
-  app.post('/register', (req, res, next) => {
+  app.post('/register', async (req, res, next) => {
     let { email, username, password } = req.body;
     
-    bcrypt.hash(password, +process.env.SALTROUNDS, function(err, hash) {
+    await bcrypt.hash(password, +process.env.SALTROUNDS, function(err, hash) {
       console.log('hash is ', hash)
       
       password = hash;
@@ -42,4 +45,37 @@ module.exports = (app) => {
     });
 
   })
+
+  app.post('/login', auth, async (req, res) => {
+    let {username, password } = req.body;
+
+    // let errors = validationResult(req);
+    // console.log('THese IS errors ', errors)
+    // if (!errors.isEmpty()) {
+    //   res.send(errors); 
+    // }
+
+    console.log('username is ', username, 'and password is ', password)
+    let userData = await User.findOne({ username: username });
+    console.log('userData is ', userData);
+    let userId = userData._id;
+    let userPass = userData.password
+    
+    bcrypt.compare(password, userData.password)
+    .then((result) => {
+      console.log('result is ', result)
+      if(result) {
+        let payload = ({ userId, userPass });
+        let options = { expiresIn: '1hr' };
+
+        let token = jwt.sign(payload, process.env.SECRET, options);
+        let loggedIn;
+
+        res.send({ token, loggedIn });
+        
+        console.log('THIS IS TOKEN', token)
+      }
+    })
+  })
+
 }
