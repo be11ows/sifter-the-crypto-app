@@ -10,41 +10,130 @@ require('dotenv').config();
 module.exports = (app) => {
 
   app.get('/list', (req, res) => {
-    console.log('this is /list')
-
-    // var config = {
-    //     method: 'get',
-    //     url: 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true',
-    //     headers: { 
-    //         'Content-Type': 'application/json'
-    //     },
-    // };
-      
-    // axios(config)
-    // .then(response => res.send(response.data))
-    // .catch(function (error) {
-    //     console.log(error);
-    // });
+    console.log('inside app.get("/list"')
   })
 
-  app.post('/register', async (req, res, next) => {
-    let { email, username, password } = req.body;
-    
-    await bcrypt.hash(password, +process.env.SALTROUNDS, function(err, hash) {
-      console.log('hash is ', hash)
-      
-      password = hash;
-  
-      User.create({ email, username, password })
-      .then((createdUser) => {
-        console.log('this is the created user', createdUser);
-  
-        console.log(createdUser.password);
+  app.post('/curatedList', (req, res) => { 
+
+    const body = req.body;
+    const token = body.token;
+    const decoded = jwt.verify(token, process.env.SECRET);
+    const userId = decoded.userId;
+
+ 
+    // post to the backend with a delete object sent back
+    if(body.delete) {
+
+      User.findById(userId, (err, user) => {
+        if(err) return console.error(err);
+        
+        let coinArray = user.userCoins;
+        let removeAtPosition;
+
+        coinArray.forEach( (coin, index) => {
+          for (let key in coin) {
+            if (key == body.coinId) {
+              removeAtPosition = index;
+            }
+          }
+        });
+
+        coinArray.splice(removeAtPosition, 1);
+
+        user.save((err, result) => {
+          if (err) return console.error(err);
+          result = result.userCoins;
+          res.send({result, msg: `${body.coinId} has been sifted out of your list.`})
+        });
+      });
+
+    // post to the backend with onPageLoad set to true
+    } else if (body.onPageLoad) {
+
+      User.findById(userId, (err, user) => {
+        if(err) return console.error(err);
+        console.log('THIS IS THE RETURNED USER ', user)
+        const coins = user.userCoins;
+        res.send( coins );
       })
-      .catch((err) => console.log(err))
-    });
 
+      
+    } else if (body.saveAmount) {
+
+      User.findById(userId, (err, user) => {
+        if(err) return console.error(err);
+        
+        let coinId = body.id;
+        let newAmount = Number(body.amount);
+        let coinArray = user.userCoins;
+        
+        let splicePosition;
+        let newCoin;
+
+        if(coinId) {
+          coinArray.forEach((coin, index) => {
+            for(let key in coin) {
+              if(key == body.id) {
+                splicePosition = index;
+                console.log('splicePosition is ', splicePosition);
+              }
+            }
+          });
+  
+          if(req.body.id && newAmount){
+            newCoin = {[req.body.id]: newAmount}
+            console.log('newCoin is ', newCoin);
+          };
+  
+          coinArray.splice(splicePosition, 1, newCoin)
+          console.log('THIS IS THE COIN ARRAY ======> ', coinArray);
+  
+          user.save((err, result) => {
+            if (err) return console.error(err);
+            result = result.userCoins;
+            res.send({result, msg: `Your list now has ${newAmount} ${[req.body.id]}`})
+          })
+        } else {
+          res.send({errorMsg: 'Error.  Please try again.'})
+        }
+      })
+      //console.log('inside saveAmount route!!')
+      // let amountToUpdate = body.saveAmt;
+      // console.log('amt to update is ', amountToUpdate)
+
+
+    }
+    
   })
+
+  app.post('/list', (req, res) => {
+    console.log('req.body is ', req.body)
+    const coin = req.body;
+    console.log('the coin is ', coin);
+
+    const payload = jwt.verify(coin.user, process.env.SECRET);
+    console.log('payload is ', payload);
+
+    User.findById(payload.userId, (err, user) => {
+      if (err) return console.error(err);
+
+      const coinName = coin.id;
+      console.log('this is the user ', user)
+      const coinChecker = user.userCoins.filter( coin => coin.hasOwnProperty(coinName));
+
+      console.log('coin checker arrary is ', coinChecker);
+
+      if(coinChecker.length === 0) {
+        user.userCoins.push({[coinName]: 0});
+      }
+
+      user.save((err, res) => {
+        if (err) return console.error(err);
+        console.log('updated user ', res);
+      });
+      res.send({msg: `${coinName} added to your list.`})
+    })
+  });
 
   app.post('/login', auth, async (req, res) => {
     let {username, password } = req.body;
@@ -76,6 +165,23 @@ module.exports = (app) => {
         console.log('THIS IS TOKEN', token)
       }
     })
+  })
+
+  app.post('/register', async (req, res, next) => {
+    let { email, username, password, userCoins } = req.body;
+    
+    await bcrypt.hash(password, +process.env.SALTROUNDS, function(err, hash) {
+           
+      password = hash;
+  
+      User.create({ email, username, password, userCoins })
+      .then((createdUser) => {
+        console.log('this is the created user ', createdUser);
+        res.send({createdUser})
+      })
+      .catch((err) => console.log(err))
+    });
+    
   })
 
 }
