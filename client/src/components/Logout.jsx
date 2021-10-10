@@ -2,8 +2,6 @@ import React from 'react';
 
 const Logout = () => {
 
-  //clearCookie('token')
-
   return ( 
     <div className='container'>
       <h1>Logout Page</h1>

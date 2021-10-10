@@ -20,7 +20,6 @@ function Navbar() {
                   <nav className="navbar bg-dark container">
                     <h4><Link className="link" to="/">Home</Link></h4>
                     <h4><Link className="link" to="/list">Coins</Link></h4>
-                    <h4><Link className="link" to="/about">About</Link></h4>
                     <h4><Link className="link" to="/register">Register</Link></h4>
                     <h4><Link className="link" to="/login">Login</Link></h4>
                   </nav>
@@ -32,7 +31,6 @@ function Navbar() {
                     <h4><Link className="link" to="/">Home</Link></h4>
                     <h4><Link className="link" to="/list">Coins</Link></h4>
                     <h4><Link className="link" to="/curatedList">Your List</Link></h4>
-                    <h4><Link className="link" to="/about">About</Link></h4>
                     <h4><Link onClick={logout} className='link' to='/'>Logout</Link></h4>
                   </nav>
                 </div>

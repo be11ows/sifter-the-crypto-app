@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom'
+import Footer from './Footer';
 
 const Register = () => {
-    const [email, setEmail] = useState();
-    const [username, setUserName] = useState();
-    const [password, setPassword] = useState();
-    const [repeatPassword, setRepeatPassword] = useState();
 
-    const handleSubmit = (e) => {
+    let history = useHistory();
+
+    const [email, setEmail] = useState();
+    const [username, setUserName] = useState('');
+    const [password, setPassword] = useState('');
+    const [repeatPassword, setRepeatPassword] = useState('');
+    // const [errorMsg, setErrorMsg] = useState(null);
+    // const [successMsg, setSuccessMsg] = useState(null);
+    
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         let userInfo = JSON.stringify({
@@ -15,22 +22,27 @@ const Register = () => {
             password: password
         });
 
-        fetch('http://localhost:9000/register', {
+        await fetch('http://localhost:9000/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: userInfo
         })
-        .then(res => {res.json()
-        console.log(res)
+        .then(res => res.json())
+        .then((data) => {
+            console.log('register data is ', data)
+            if(data.createdUser) {
+                history.push('/login')
+            } else {
+                alert('Sifter registration unsuccessful.  Please try again.')
+            }
         })
         .catch((err) => console.log(err));
         
-        // console.log('This is EMAIL:', email)
-        // console.log('This is USERNAME:', username)
-        // console.log('This is PASSWORD:', password)
-        // console.log('This is repeatPASSWORD:', repeatPassword)
+        // if(!errorMsg){
+        //     setSuccessMsg('Registration successful.  Happy Sifting')
+        // }
     }
     
     const handleChange = (e) => {
@@ -44,45 +56,6 @@ const Register = () => {
             setRepeatPassword(e.target.value);
         };
     }
-// import React, { useState, useEffect } from 'react';
-
-// const Register = () => {
-//   const [email, setEmail] = useState();
-//   const [username, setUsername] = useState();
-//   const [password, setPassword] = useState();
-//   const [repeatPassword, setRepeatPassword] = useState();
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-
-//     let userInfo = JSON.stringify({
-//       email: email,
-//       username: username,
-//       password: password
-//     });
-
-//     fetch('http://localhost:9000/register', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json'
-//       },
-//       body: userInfo
-//     })
-//     .catch((err) => console.log(err));
-//   }
-
-//   const handleChange = (e) => {
-//     if (e.target.name === 'email') {
-//       setEmail(e.target.value);
-//     } else if (e.target.name === 'username') {
-//       setUsername(e.target.value);
-//     } else if (e.target.name === 'password') {
-//       setPassword(e.target.value);
-//     } else if (e.target.name === 'repeatPassword') {
-//       setRepeatPassword(e.target.value);
-//     };
-//   }
-//   console.log('email is ', email);
 
   return ( 
     <div className='container'>
@@ -134,6 +107,7 @@ const Register = () => {
 
             </form>
 
+            <Footer />
     </div>
    );
 }
