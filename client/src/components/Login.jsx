@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useCookies } from 'react-cookie';
-import { useHistory } from 'react-router';
+import { useHistory } from 'react-router-dom';
+import Footer from './Footer';
 
 const Login = () => {
 
@@ -8,7 +9,8 @@ const Login = () => {
 
   const [username, setUsername] = useState();
   const [password, setPassword] = useState();
-  const [cookie, setCookie] = useCookies();
+  const [errorMsg, setErrorMsg] = useState();
+  const [cookie, setCookie, removeCookie] = useCookies();
 
   const handleSubmit = (e) => {
     
@@ -28,19 +30,35 @@ const Login = () => {
     })
     .then(res => res.json())
     .then((data) => {
-      console.log('THIS IS DATA ', data)
-      setCookie('token', data.token);
-      setCookie('loggedIn', true);
-      console.log('cookie be ', cookie)
+
+      if (data.token) {
+
+        // console.log('THIS IS DATA ', data)
+        setCookie('token', data.token);
+        setCookie('loggedIn', true);
+
+        setTimeout(() => {
+          removeCookie('loggedIn');
+          removeCookie('token');
+          history.push('/home');
+        }, 3600 * 1000);
+
+        setTimeout(() => {
+          alert('For your security => 5 minutes left until auto logout')
+        }, 3300 * 1000);
+
+      } else if (data.errorMsg) {
+        setErrorMsg(data.errorMsg);
+      }
     })
     .catch((err) => console.log(err));
     
 
-    if(cookie.loggedIn) {
-      console.log('we logged in')
-    } else {
-      console.log('nope, not logged in');
-    }
+    // if(cookie.loggedIn) {
+    //   console.log('we logged in')
+    // } else {
+    //   console.log('nope, not logged in');
+    // }
   }
 
   const handleChange = (e) => {
@@ -64,19 +82,14 @@ const Login = () => {
         <div className="form-group">
           <label for="exampleInputEmail1">Username</label>
           <input name='username' type="username" className="form-control" id="exampleInputUsername1" aria-describedby="usernameHelp" placeholder="Enter username" onChange={handleChange} />
-          {/* <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> */}
         </div>
         <div className="form-group">
           <label for="exampleInputPassword1">Password</label>
           <input name='password' type="password" className="form-control" id="exampleInputPassword1" placeholder="Password" onChange={handleChange}/>
         </div>
-        {/* <div class="form-check">
-          <input type="checkbox" class="form-check-input" id="exampleCheck1" />
-          <label class="form-check-label" for="exampleCheck1">Check me out</label>
-        </div> */}
         <button type="submit" className="btn btn-primary">Login</button>
       </form>
-
+      <Footer />
     </div>
    );
 }

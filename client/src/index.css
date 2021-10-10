@@ -11,3 +11,27 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.addCoin > svg {
+  pointer-events: none;
+  cursor: pointer;
+}
+
+.delCoin > svg {
+  pointer-events: none;
+  cursor: pointer;
+}
+
+.saveAmount > svg {
+  pointer-events: none;
+  cursor: pointer;
+}
+
+.logo {
+  width: 15%;
+  height: 'auto';
+}
+
+.input {
+  width: 50%;
+}
